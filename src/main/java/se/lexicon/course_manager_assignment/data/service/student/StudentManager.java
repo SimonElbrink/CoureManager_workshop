@@ -8,8 +8,10 @@ import se.lexicon.course_manager_assignment.data.service.converter.Converters;
 import se.lexicon.course_manager_assignment.dto.forms.CreateStudentForm;
 import se.lexicon.course_manager_assignment.dto.forms.UpdateStudentForm;
 import se.lexicon.course_manager_assignment.dto.views.StudentView;
+import se.lexicon.course_manager_assignment.model.Student;
 
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -28,7 +30,9 @@ public class StudentManager implements StudentService {
 
     @Override
     public StudentView create(CreateStudentForm form) {
-        return null;
+        Student student = studentDao.createStudent(form.getName(), form.getEmail(), form.getAddress());
+        StudentView studentView  = converters.studentToStudentView(student);
+        return studentView;
     }
 
     @Override
@@ -38,26 +42,32 @@ public class StudentManager implements StudentService {
 
     @Override
     public StudentView findById(int id) {
-        return null;
+        return converters.studentToStudentView(studentDao.findById(id));
     }
 
     @Override
     public StudentView searchByEmail(String email) {
-        return null;
+        Student byEmailIgnoreCase = studentDao.findByEmailIgnoreCase(email);
+        return converters.studentToStudentView(byEmailIgnoreCase);
     }
 
     @Override
     public List<StudentView> searchByName(String name) {
-        return null;
+        Collection<Student> found = studentDao.findByNameContains(name);
+
+        return converters.studentsToStudentViews(found);
     }
 
     @Override
     public List<StudentView> findAll() {
-        return null;
+        Collection<Student> found = studentDao.findAll();
+
+        return converters.studentsToStudentViews(found);
     }
 
     @Override
     public boolean deleteStudent(int id) {
-        return false;
+        Student student = studentDao.findById(id);
+        return studentDao.removeStudent(student);
     }
 }
