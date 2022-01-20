@@ -7,6 +7,7 @@ import se.lexicon.course_manager_assignment.model.Course;
 import se.lexicon.course_manager_assignment.model.Student;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,21 +15,67 @@ import java.util.List;
 public class ModelToDto implements Converters {
     @Override
     public StudentView studentToStudentView(Student student) {
-        return null;
+        StudentView studentView = null;
+
+        if (student != null) {
+            studentView = new StudentView(
+                    student.getId(),
+                    student.getName(),
+                    student.getEmail(),
+                    student.getAddress()
+            );
+        }
+
+        return studentView;
     }
 
     @Override
     public CourseView courseToCourseView(Course course) {
-        return null;
+
+        CourseView courseView = null;
+
+        if (course != null){
+            courseView = new CourseView(
+                    course.getId(),
+                    course.getCourseName(),
+                    course.getStartDate(),
+                    course.getWeekDuration(),
+                    studentsToStudentViews(course.getStudents())
+            );
+        }
+        return courseView;
     }
 
     @Override
     public List<CourseView> coursesToCourseViews(Collection<Course> courses) {
-        return null;
+
+        List<CourseView> courseViewList = new ArrayList<>();
+
+        if (courses != null){
+            for (Course course : courses) {
+                if (course != null){
+                    CourseView courseView = courseToCourseView(course);
+                    courseViewList.add(courseView);
+                }
+            }
+        }
+
+        return courseViewList;
     }
 
     @Override
     public List<StudentView> studentsToStudentViews(Collection<Student> students) {
-        return null;
+
+        List<StudentView> studentViews = new ArrayList<>();
+
+        if (students != null){
+            for (Student student : students){
+                if (student != null){
+                    studentViews.add(studentToStudentView(student));
+                }
+            }
+        }
+
+        return studentViews;
     }
 }
