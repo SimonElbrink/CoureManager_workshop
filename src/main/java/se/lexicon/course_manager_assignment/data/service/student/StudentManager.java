@@ -8,6 +8,7 @@ import se.lexicon.course_manager_assignment.data.service.converter.Converters;
 import se.lexicon.course_manager_assignment.dto.forms.CreateStudentForm;
 import se.lexicon.course_manager_assignment.dto.forms.UpdateStudentForm;
 import se.lexicon.course_manager_assignment.dto.views.StudentView;
+import se.lexicon.course_manager_assignment.model.Course;
 import se.lexicon.course_manager_assignment.model.Student;
 
 
@@ -31,13 +32,20 @@ public class StudentManager implements StudentService {
     @Override
     public StudentView create(CreateStudentForm form) {
         Student student = studentDao.createStudent(form.getName(), form.getEmail(), form.getAddress());
-        StudentView studentView  = converters.studentToStudentView(student);
-        return studentView;
+        return converters.studentToStudentView(student);
     }
 
     @Override
     public StudentView update(UpdateStudentForm form) {
-        return null;
+        Student update = studentDao.findById(form.getId());
+
+        if (update != null){
+            update.setName(form.getName().trim());
+            update.setEmail(form.getEmail().trim());
+            update.setAddress(form.getAddress().trim());
+        }
+
+        return converters.studentToStudentView(update);
     }
 
     @Override
@@ -54,20 +62,24 @@ public class StudentManager implements StudentService {
     @Override
     public List<StudentView> searchByName(String name) {
         Collection<Student> found = studentDao.findByNameContains(name);
-
         return converters.studentsToStudentViews(found);
     }
 
     @Override
     public List<StudentView> findAll() {
         Collection<Student> found = studentDao.findAll();
-
         return converters.studentsToStudentViews(found);
     }
 
     @Override
     public boolean deleteStudent(int id) {
         Student student = studentDao.findById(id);
+        if (student != null) {
+           Collection<Course> studentCourses = courseDao.findByStudentId(id);
+            for (Course course : studentCourses) {
+                course.unrollStudent(student);
+            }
+        }
         return studentDao.removeStudent(student);
     }
 }
